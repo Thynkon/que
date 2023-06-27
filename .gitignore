@@ -20,3 +20,10 @@ erl_crash.dump
 /Mnesia.nonode@nohost
 /.mnesia
 
+/.fetch
+*.beam
+
+/config/*.secret.exs
+
+# LSP server
+.elixir_ls/

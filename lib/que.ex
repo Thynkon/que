@@ -9,8 +9,6 @@ defmodule Que do
   [`mnesia`](http://erlang.org/doc/man/mnesia.html). This makes it extremely
   easy to use as you don't need to install anything other than Que itself.
 
-
-
   ## Installation
 
   First add it as a dependency in your `mix.exs` and run `mix deps.get`:
@@ -20,7 +18,6 @@ defmodule Que do
     [{:que, "~> #{Que.Mixfile.project()[:version]}"}]
   end
   ```
-
   Then run `$ mix deps.get` and add it to your list of applications:
 
   ```
@@ -28,9 +25,6 @@ defmodule Que do
     [applications: [:que]]
   end
   ```
-
-
-
   ## Usage
 
   Define a [`Worker`](Que.Worker.html) to process your jobs:
@@ -46,7 +40,6 @@ defmodule Que do
     end
   end
   ```
-
   You can now add jobs to be processed by the worker:
 
   ```
@@ -56,8 +49,6 @@ defmodule Que do
 
   Read the `Que.Worker` documentation for other callbacks and
   concurrency options.
-
-
 
   ## Persist to Disk
 

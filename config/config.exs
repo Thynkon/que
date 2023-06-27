@@ -20,16 +20,12 @@ import Config
 #     config :logger, level: :info
 #
 
-
 config :mnesia,
-  dir: '.mnesia/#{Mix.env}/#{node()}'
+  dir: ~c".mnesia/#{Mix.env()}/#{node()}"
 
-
-
-if Mix.env == :test do
+if Mix.env() == :test do
   config :que, log_level: :medium
 end
-
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
