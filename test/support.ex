@@ -23,7 +23,7 @@ defmodule Que.Test.Meta do
     use Que.Worker
 
     def perform(args), do: Logger.debug("#{__MODULE__} - perform: #{inspect(args)}")
-    def on_success(args), do: Logger.debug("#{__MODULE__} - success: #{inspect(args)}")
+    def on_success(job, _result), do: Logger.debug("#{__MODULE__} - success: #{inspect(job)}")
   end
 
   defmodule FailureWorker do
@@ -34,7 +34,7 @@ defmodule Que.Test.Meta do
       raise "some error"
     end
 
-    def on_failure(args, _err), do: Logger.debug("#{__MODULE__} - failure: #{inspect(args)}")
+    def on_failure(job, _err), do: Logger.debug("#{__MODULE__} - failure: #{inspect(job)}")
   end
 
   defmodule SleepWorker do
@@ -45,8 +45,8 @@ defmodule Que.Test.Meta do
       Logger.debug("#{__MODULE__} - perform: #{inspect(args)}")
     end
 
-    def on_success(args), do: Logger.debug("#{__MODULE__} - success: #{inspect(args)}")
-    def on_failure(args, _err), do: Logger.debug("#{__MODULE__} - failure: #{inspect(args)}")
+    def on_success(job, _result), do: Logger.debug("#{__MODULE__} - success: #{inspect(job)}")
+    def on_failure(job, _err), do: Logger.debug("#{__MODULE__} - failure: #{inspect(job)}")
   end
 
   defmodule SetupAndTeardownWorker do

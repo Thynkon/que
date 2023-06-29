@@ -184,10 +184,10 @@ defmodule Que.Worker do
 
       ## Default implementations of on_success and on_failure callbacks
 
-      def on_success(_arg) do
+      def on_success(_job, _result) do
       end
 
-      def on_failure(_arg, _err) do
+      def on_failure(_job, _err) do
       end
 
       def on_setup(_job) do
@@ -196,7 +196,7 @@ defmodule Que.Worker do
       def on_teardown(_job) do
       end
 
-      defoverridable on_success: 1, on_failure: 2, on_setup: 1, on_teardown: 1
+      defoverridable on_success: 2, on_failure: 2, on_setup: 1, on_teardown: 1
 
       # Make sure the Worker is valid
       def __after_compile__(_env, _bytecode) do
@@ -232,13 +232,13 @@ defmodule Que.Worker do
   Optional callback that is executed when the job is processed
   successfully.
   """
-  @callback on_success(arguments :: term) :: term
+  @callback on_success(job :: Que.Job.t(), arguments :: term) :: term
 
   @doc """
   Optional callback that is executed if an error is raised during
   job is processed (in `perform` callback)
   """
-  @callback on_failure(arguments :: term, error :: tuple) :: term
+  @callback on_failure(job :: Que.Job.t(), error :: tuple) :: term
 
   @doc """
   Optional callback that is executed before the job is started.

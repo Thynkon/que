@@ -1,5 +1,6 @@
 defmodule Que.Server do
   use GenServer
+  require Logger
 
   @module __MODULE__
 
@@ -77,20 +78,38 @@ defmodule Que.Server do
   end
 
   # Job was completed successfully - Does cleanup and executes the Success
-  # callback on the Worker
+  # callback on the Worker. It is called when the supervisor finishes the task.
 
   @doc false
-  def handle_info({:DOWN, ref, :process, _pid, :normal}, queue) do
+  def handle_info({ref, result}, queue) do
     job =
       queue
       |> Que.Queue.find(:ref, ref)
-      |> Que.Job.handle_success()
-      |> Que.Persistence.update()
 
     queue =
-      queue
-      |> Que.Queue.remove(job)
-      |> Que.Queue.process()
+      if job != nil do
+        job =
+          job
+          |> Que.Job.handle_success(result)
+          |> Que.Persistence.update()
+
+        queue
+        |> Que.Queue.remove(job)
+        |> Que.Queue.process()
+      else
+        queue
+      end
+
+    {:noreply, queue}
+  end
+
+  # Once the job is done, the supervisor sends a DOWN message to the server
+
+  @doc false
+  def handle_info({:DOWN, ref, :process, _pid, :normal}, queue) do
+    Que.Helpers.log("Job completed successfully", :low)
+
+    Process.demonitor(ref, [:flush])
 
     {:noreply, queue}
   end

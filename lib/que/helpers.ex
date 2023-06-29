@@ -5,7 +5,7 @@ defmodule Que.Helpers do
   @moduledoc false
 
   @log_levels [low: 0, medium: 1, high: 2]
-  @min_level Application.get_env(:que, :log_level, :low)
+  @min_level Application.compile_env(:que, :log_level, :low)
 
   ## Helper Module for `Que`. Exports methods that are used in the
   ## project internally. Not meant to be used as part of the Public
@@ -27,9 +27,9 @@ defmodule Que.Helpers do
   @doc """
   Off-loads tasks to custom `Que.TaskSupervisor`
   """
-  @spec do_task((-> any)) :: {:ok, pid}
+  @spec do_task((-> any)) :: Task.t()
   def do_task(fun) do
-    Task.Supervisor.start_child(Que.TaskSupervisor, fun)
+    Task.Supervisor.async_nolink(Que.TaskSupervisor, fun)
   end
 
   # Convert Log Level to Integer

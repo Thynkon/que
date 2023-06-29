@@ -1,7 +1,17 @@
 defmodule Que.Job do
   require Logger
 
-  defstruct [:id, :arguments, :worker, :status, :ref, :pid, :created_at, :updated_at]
+  defstruct [
+    :id,
+    :arguments,
+    :worker,
+    :status,
+    :ref,
+    :pid,
+    :created_at,
+    :updated_at
+  ]
+
   ## Note: Update Que.Persistence.Mnesia after changing these values
 
   @moduledoc """
@@ -48,14 +58,14 @@ defmodule Que.Job do
   def perform(job) do
     Que.Helpers.log("Starting #{job}")
 
-    {:ok, pid} =
+    task =
       Que.Helpers.do_task(fn ->
         Logger.metadata(job_id: job.id)
         job.worker.on_setup(job)
         job.worker.perform(job.arguments)
       end)
 
-    %{job | status: :started, pid: pid, ref: Process.monitor(pid)}
+    %{job | status: :started, pid: task.pid, ref: task.ref}
   end
 
   @doc """
@@ -75,6 +85,21 @@ defmodule Que.Job do
     %{job | status: :completed, pid: nil, ref: nil}
   end
 
+  @spec handle_success(job :: Que.Job.t(), result :: term()) :: Que.Job.t()
+  def handle_success(job, result) do
+    Que.Helpers.log("Completed #{job} with result #{inspect(result)}}")
+
+    job = %{job | status: :completed, pid: nil, ref: nil}
+
+    Que.Helpers.do_task(fn ->
+      Logger.metadata(job_id: job.id)
+      job.worker.on_success(job, result)
+      job.worker.on_teardown(job)
+    end)
+
+    job
+  end
+
   @doc """
   Handles Job Failure, Calls appropriate worker method and updates the job
   status to :failed
@@ -83,13 +108,15 @@ defmodule Que.Job do
   def handle_failure(job, error) do
     Que.Helpers.log("Failed #{job}")
 
+    job = %{job | status: :failed, pid: nil, ref: nil}
+
     Que.Helpers.do_task(fn ->
       Logger.metadata(job_id: job.id)
-      job.worker.on_failure(job.arguments, error)
+      job.worker.on_failure(job, error)
       job.worker.on_teardown(job)
     end)
 
-    %{job | status: :failed, pid: nil, ref: nil}
+    job
   end
 end
 

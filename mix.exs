@@ -40,7 +40,7 @@ defmodule Que.Mixfile do
   def application do
     [
       mod: {Que, []},
-      extra_applications: [:logger, :memento, :ex_utils]
+      extra_applications: [:logger, :memento, :ex_utils, :wx, :observer]
     ]
   end
 
@@ -48,7 +48,7 @@ defmodule Que.Mixfile do
     [
       {:memento, "~> 0.3.0"},
       {:ex_utils, "~> 0.1.6"},
-      {:ex_doc, ">= 0.0.0", only: :docs},
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false},
       {:inch_ex, ">= 0.0.0", only: :docs}
     ]
   end
